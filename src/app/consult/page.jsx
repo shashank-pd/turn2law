@@ -161,7 +161,7 @@ export default function ConsultPage() {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-8">
                     {hasSelectedArea && recommendedLawyers.length === 0 ? (
                         <p>No lawyers found for this area.</p>
