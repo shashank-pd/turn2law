@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Gavel, Shield, Clock, ChevronsDown, Wallet, MonitorSmartphone, Languages } from "lucide-react";
+import FeatureCard from "../components/FeatureCard";
+import { features } from "../components/features";
 
 export default function HomePage() {
   const ref = useRef(null);
@@ -88,77 +90,14 @@ export default function HomePage() {
       </section >
 
       <section className="px-4 py-8">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-10 text-center">Features</h1>
+      <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-10 text-center">Features</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <Gavel className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Lawyer Matching System</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Get matched to the right lawyer for your case
-            </h5>
-            <p className="text-muted-foreground">
-              Find lawyers tailored to your needs using our intelligent matching engine
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <Shield className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Secure & Confidential</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Your privacy is our priority
-            </h5>
-            <p className="text-muted-foreground">
-              All interactions and data are encrypted with enterprise-grade security.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <Clock className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">24/7 Legal Support</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Legal help whenever you need it
-            </h5>
-            <p className="text-muted-foreground">
-              Consult legal experts anytime through our AI-powered platform
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <Wallet className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Affordable Plans</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Legal help within your budget
-            </h5>
-            <p className="text-muted-foreground">
-              Flexible subscription plans with zero hidden costs and exclusive client benefits.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <MonitorSmartphone className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Virtual Consultations</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Talk to a lawyer from anywhere
-            </h5>
-            <p className="text-muted-foreground">
-              Join video or chat consultations directly from your device.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 border border-black w-[250px] ml-2">
-            <Languages className="h-12 w-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Multilingual Support</h3>
-            <h5 className="text-sm text-gray-600 italic mb-2 tracking-wide">
-              Legal help in your language
-            </h5>
-            <p className="text-muted-foreground">
-              Access services and support in regional languages for better understanding.
-            </p>
-          </div>
-        </div>
-      </section>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+        {features.map((feature, index) => (
+          <FeatureCard key={index} {...feature} />
+        ))}
+      </div>
+    </section>
     </div >
   );
 }
