@@ -1,37 +1,67 @@
-import { useState, useEffect } from "react";
-import { supabase } from "/lib/supabaseClient"; // Make sure the path is correct
+"use client";
 
-const useAuth = () => {
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+export default function useAuth() {
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
-  // Get the user and subscribe to auth state changes
   useEffect(() => {
-    const getUser = async () => {
-      const { data: currentUser } = await supabase.auth.getUser();
-      setUser(currentUser);
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
     };
 
-    getUser();
+    fetchUser();
 
-    // Subscribe to auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user);
+      setUser(session?.user || null);
     });
 
-    
     return () => {
-        // Clean up the listener when the component is unmounted
-        authListener.data?.unsubscribe();
-      };
-    }, []);
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
-  // Handle logout
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null); // Clear the user from state
+  const handleLogin = async (email, password) => {
+    const loginPromise = supabase.auth.signInWithPassword({ email, password });
+
+    toast.promise(loginPromise, {
+      loading: "Logging in...",
+      success: "Login successful!",
+      error: "Login failed. Please check your credentials.",
+    });
+
+    const { error } = await loginPromise;
+
+    if (!error) {
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    }
+
+    return error;
   };
 
-  return { user, handleLogout };
-};
+  const handleLogout = async () => {
+    const logoutPromise = supabase.auth.signOut();
 
-export default useAuth;
+    toast.promise(logoutPromise, {
+      loading: "Logging out...",
+      success: "Logout successful!",
+      error: "Logout failed!",
+    });
+
+    const { error } = await logoutPromise;
+    if (!error) {
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    }
+  };
+
+  return { user, handleLogin, handleLogout };
+}
