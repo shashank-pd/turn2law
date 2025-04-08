@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import useAuth from "../hooks/useAuth"; // Import the custom hook
 import { House, Users, MessageSquare, UserRound, UserPlus, Moon, Sun } from "lucide-react";
@@ -8,6 +7,7 @@ import { House, Users, MessageSquare, UserRound, UserPlus, Moon, Sun } from "luc
 export default function Navbar() {
   const [isDark, setIsDark] = useState(false); // Dark mode toggle
   const { user, handleLogout } = useAuth(); // Use the custom hook
+  
 
   // Toggle theme
   const toggleIcon = () => {
