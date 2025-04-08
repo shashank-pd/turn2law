@@ -1,1 +1,14 @@
 @import "tailwindcss";
+/* Add some basic styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  footer {
+    padding: 1rem;
+    background-color: #f8f8f8;
+    text-align: center;
+    width: 100%;
+  }
+  
