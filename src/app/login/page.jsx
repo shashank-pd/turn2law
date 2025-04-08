@@ -1,54 +1,97 @@
-"use client";
-import Link from "next/link";
-import React from "react";
-import axios from "axios"; // ✅ fixed import
-import { useRouter } from "next/navigation";
+"use client"
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";  // To redirect user after successful login
+import { supabase } from "/lib/supabaseClient"; // Assuming you have a supabaseClient setup
 
-export default function Loginpage() {
-    const router = useRouter(); // useful for redirect later
-    const [user, setUser] = React.useState({
-        email: "",
-        password: "",
-    });
+export default function Login() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState(null);
+    const router = useRouter();
 
+    // Handle the login action
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError(null); // Reset any previous errors
 
-    const onLogin = async () => {
-        try {
-            const res = await axios.post("/api/users/signup", user);
-            console.log("Signup success:", res.data);
-            router.push("/login"); // redirect to login page
-        } catch (error) {
-            console.error("Signup failed:", error);
+        // Attempt to log in using Supabase
+        const { user, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            // Handle login failure
+            setError(error.message);
+        } else {
+            // Redirect the user on successful login
+            console.log("User logged in successfully:", user);
+            router.push("/"); // Redirect to a user dashboard or home page
         }
     };
 
     return (
-        <div>
-            <h1>Login</h1>
+        <div className="min-h-screen flex justify-center items-center bg-gray-100">
+            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+                <h2 className="text-2xl font-bold mb-6 text-center">Log In</h2>
+                <form onSubmit={handleLogin}>
+                    {/* Email */}
+                    <div className="mb-4">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full p-2 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
 
-            <label htmlFor="email">Email</label>
-            <input
-                id="email"
-                type="email"
-                value={user.email}
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
-                placeholder="email"
-            />
+                    {/* Password */}
+                    <div className="mb-6">
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="w-full p-2 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
 
-            <label htmlFor="password">Password</label>
-            <input
-                id="password"
-                type="password"
-                value={user.password}
-                onChange={(e) => setUser({ ...user, password: e.target.value })}
-                placeholder="password"
-            />
+                    {/* Error Message */}
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
 
 
 
-            <button onClick={onLogin}>Login Here</button>
-            <Link href="/signup">Visit Singnup Page</Link>
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                    >
+                        Log In
+                    </button>
+                </form>
+
+                {/* Signup Link */}
+                <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-600">
+                        Don't have an account?{" "}
+                        <a href="/signup" className="text-blue-600 hover:underline">
+                            Sign Up
+                        </a>
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
