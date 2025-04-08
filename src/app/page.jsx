@@ -2,9 +2,10 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { Gavel, Shield, Clock, ChevronsDown, Wallet, MonitorSmartphone, Languages } from "lucide-react";
+import { ChevronsDown } from "lucide-react";
 import FeatureCard from "../components/FeatureCard";
 import { features } from "../components/features";
+
 
 export default function HomePage() {
   const ref = useRef(null);
