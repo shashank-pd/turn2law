@@ -1,12 +1,15 @@
-"use client";
-
-import Link from "next/link";
-import { MessageSquare, Users, House, UserRound, UserPlus, Moon, Sun } from "lucide-react";
+"use client"
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import useAuth from "../hooks/useAuth"; // Import the custom hook
+import { House, Users, MessageSquare, UserRound, UserPlus, Moon, Sun } from "lucide-react";
 
 export default function Navbar() {
-  const [isDark, setIsDark] = useState(false); // false = light (show Moon)
+  const [isDark, setIsDark] = useState(false); // Dark mode toggle
+  const { user, handleLogout } = useAuth(); // Use the custom hook
 
+  // Toggle theme
   const toggleIcon = () => {
     setIsDark(!isDark);
   };
@@ -33,15 +36,34 @@ export default function Navbar() {
           <MessageSquare className="h-4 w-4 mr-2" />
           Legal AI Assistant
         </Link>
-        <Link href="/chat" className="inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 transition">
-          <UserRound className="h-4 w-4 mr-2" />
-          Login
-        </Link>
 
-        <Link href="/chat" className="inline-flex items-center p-2 text-sm font-medium text-black border rounded-3xl hover:text-blue-600 transition">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Sign up
-        </Link>
+        {/* Conditionally render login/signup or user profile and logout */}
+        {!user ? (
+          <>
+            <Link href="/login" className="inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 transition">
+              <UserRound className="h-4 w-4 mr-2" />
+              Login
+            </Link>
+            <Link href="/signup" className="inline-flex items-center p-2 text-sm font-medium text-black border rounded-3xl hover:text-blue-600 transition">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Sign up
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link href="/userprofile" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-800 hover:text-blue-600 transition">
+              <UserRound className="h-4 w-4 mr-2" />
+              {user?.user_metadata?.username || user.email}
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center p-2 text-sm font-medium text-black border rounded-3xl hover:text-blue-600 transition cursor-pointer">
+              Logout
+            </button>
+          </>
+        )}
+
         {/* Toggle Icon */}
         <div className="flex items-center space-x-2 ml-0 cursor-pointer" onClick={toggleIcon}>
           {isDark ? (
