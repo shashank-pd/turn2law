@@ -1,13 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "/lib/supabaseClient";
 import useAuth from "../../hooks/useAuth";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true); // 👈 New state
   const { handleLogin } = useAuth();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/"); // 🔁 redirect if logged in
+      } else {
+        setCheckingSession(false); // ✅ render login form
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -16,10 +33,11 @@ export default function Login() {
     setLoading(false);
   };
 
+  if (checkingSession) return null; // ⏳ Wait until session check is done
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-lg overflow-hidden grid lg:grid-cols-2">
-        
         {/* Image Section */}
         <div className="hidden lg:block">
           <img
@@ -68,7 +86,7 @@ export default function Login() {
               />
               <div className="text-right mt-1">
                 <a
-                  href="/forgotpassword"
+                  href="/forgot-password"
                   className="text-sm text-blue-600 hover:underline"
                 >
                   Forgot password?
