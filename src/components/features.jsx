@@ -1,9 +1,9 @@
 // src/constants/features.jsx
-import { Gavel, Shield, Clock, Wallet, MonitorSmartphone, Languages } from "lucide-react";
+import { Scale, Shield, Clock, Wallet, MonitorSmartphone, Languages } from "lucide-react";
 
 export const features = [
   {
-    icon: Gavel,
+    icon: Scale,
     title: "Lawyer Matching System",
     tagline: "Get matched to the right lawyer for your case",
     description: "Find lawyers tailored to your needs using our intelligent matching engine"
