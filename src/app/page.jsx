@@ -56,7 +56,7 @@ export default function HomePage() {
             style={{ color, backgroundColor: background }}
           >
             Fast and affordable AI-powered legal services — because your rights matters the most.
-  
+
 
           </motion.p>
 
@@ -80,7 +80,7 @@ export default function HomePage() {
             style={{ opacity: showButtons }}
             className="flex gap-7 justify-center mt-56 mb-0"
           >
-            <button className="bg-black text-white px-6 py-2 rounded-lg hover:shadow-[-25px_10px_50px_rgba(0,0,0,0.5)] transition cursor-pointer">
+            <button className="bg-indigo-700 text-white px-6 py-2 rounded-lg hover:shadow-[-25px_10px_50px_rgba(0,0,0,0.5)] transition cursor-pointer">
               Get Legal Consultation
             </button>
             <button className="bg-white text-black px-6 py-2 rounded-lg shadow-[0_10px_50px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition cursor-pointer">
@@ -91,14 +91,52 @@ export default function HomePage() {
       </section >
 
       <section className="px-4 py-8">
-      <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-10 text-center">Features</h1>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-10 text-center">Features</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-        {features.map((feature, index) => (
-          <FeatureCard key={index} {...feature} />
-        ))}
-      </div>
-    </section>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+          {features.map((feature, index) => (
+            <FeatureCard key={index} {...feature} />
+          ))}
+        </div>
+      </section>
+
+      {/* About Us Tag */}
+      <section className="px-4 sm:px-8 py-16 bg-white">
+        <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-center mb-12">
+          What's <span className="text-yellow-400">Turn2Law?</span>
+        </h1>
+
+        <div className="flex flex-col sm:flex-row justify-between gap-8">
+          {/* Left: About Turn2Law */}
+          <div className="flex-1 bg-gray-100 p-8 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border-gray-200 border">
+            <p className="text-gray-600 text-lg leading-relaxed ">
+              <span className="font-semibold text-gray-800">Turn2Law</span> is a next-generation legal platform designed to simplify
+              access to legal services for everyone. Whether you're facing an emergency, sorting critical documents, or seeking
+              legal advice, Turn2Law connects you to trusted professionals instantly. Through our innovative approach to document
+              handling, lawyer matching, and a comprehensive resource library, we bridge the gap between legal expertise and
+              accessibility—making legal services more <span className="text-yellow-500 font-medium">affordable, efficient, and effective</span> for all.
+            </p>
+          </div>
+
+          {/* Right: Key Statistics */}
+          <div className="flex-1 bg-gray-100 p-8 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border-gray-200 border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {[
+                { title: "10,000+", subtitle: "Consultations Done" },
+                { title: "95%", subtitle: "Client Satisfaction" },
+                { title: "24/7", subtitle: "Legal Support" },
+                { title: "20+ Cities", subtitle: "Across India" },
+              ].map((stat, index) => (
+                <div key={index} className="text-center hover:scale-105 transition-transform duration-300">
+                  <h3 className="text-4xl font-extrabold text-yellow-500">{stat.title}</h3>
+                  <p className="text-md text-gray-500 mt-1">{stat.subtitle}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div >
   );
 }
