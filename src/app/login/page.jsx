@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
-import { Toaster } from "react-hot-toast";
+import { toast } from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -74,8 +74,6 @@ export default function Login() {
           </p>
         </div>
       </div>
-
-      <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 }
