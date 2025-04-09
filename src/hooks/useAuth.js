@@ -27,24 +27,29 @@ export default function useAuth() {
   }, []);
 
   const handleLogin = async (email, password) => {
-    const loginPromise = supabase.auth.signInWithPassword({ email, password });
-
-    toast.promise(loginPromise, {
-      loading: "Logging in...",
-      success: "Login successful!",
-      error: "Login failed. Please check your credentials.",
-    });
-
-    const { error } = await loginPromise;
-
-    if (!error) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+  
+      if (error) {
+        toast.error("Login failed. Please check your credentials.");
+        return error;
+      }
+  
+      toast.success("Login successful!");
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 1000);
+  
+      return null;
+    } catch (err) {
+      toast.error("Something went wrong!");
+      return err;
     }
-
-    return error;
   };
+  
 
   const handleLogout = async () => {
     const logoutPromise = supabase.auth.signOut();
