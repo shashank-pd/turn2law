@@ -32,7 +32,7 @@ export default function Navbar() {
           <Users className="h-4 w-4 mr-2" />
           Consult
         </Link>
-        <Link href="/chat" className="inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 transition">
+        <Link href="/chatbot" className="inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 transition">
           <MessageSquare className="h-4 w-4 mr-2" />
           Legal AI Assistant
         </Link>
