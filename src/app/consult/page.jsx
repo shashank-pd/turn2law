@@ -6,66 +6,107 @@ import { supabase } from "/lib/supabaseClient";
 import { useForm } from "react-hook-form";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
+import useAuth from "../../hooks/useAuth";
+import { toast } from "react-hot-toast";
 
 export default function ConsultPage() {
   const [practiceArea, setPracticeArea] = useState("");
   const [recommendedLawyers, setRecommendedLawyers] = useState([]);
   const [selectedLawyer, setSelectedLawyer] = useState(null);
   const [hasSelectedArea, setHasSelectedArea] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();    
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [selected, setSelected] = useState("");
+  const { user } = useAuth();
 
   const disablePastDates = (date) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to midnight to compare only the date part
-    return date < today; // Disable dates before today
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   };
 
-  // Fetch recommended lawyers based on the selected practice area
   const findRecommendedLawyers = async (area) => {
-    if (!area) {
-      setRecommendedLawyers([]);
-      return;
-    }
+    if (!area) return setRecommendedLawyers([]);
     const { data, error } = await supabase
       .from("lawyers")
       .select("*")
       .eq("specialization", area);
-
-    if (error) {
-      console.error("Supabase error:", error.message);
-      return;
-    }
-
+    if (error) return console.error("Supabase error:", error.message);
     setRecommendedLawyers(data);
   };
 
   const handleChange = async (e) => {
     const selectedValue = e.target.value;
     setPracticeArea(selectedValue);
-    setHasSelectedArea(true); // Mark that an area is selected
+    setHasSelectedArea(true);
     await findRecommendedLawyers(selectedValue);
   };
 
-  const onSubmit = (data) => {
-    console.log("Form submitted with data:", data);
-    // You can trigger your toast notifications here if needed
+  // ✅ Final submission logic — runs after all validation is passed
+  const onSubmit = async (formData) => {
+    try {
+      const { error } = await supabase.from("consultations").insert([
+        {
+          user_id: user.id,
+          lawyer_id: selectedLawyer,
+          consultation_type: formData.consultationType,
+          case_description: formData.caseDescription,
+          preferred_time: formData.preferredTime,
+          date: selected.toISOString(),
+        },
+      ]);
+
+      if (error) {
+        toast.error("Failed to schedule consultation.");
+        console.error(error);
+        return;
+      }
+
+      toast.success("Consultation scheduled successfully!");
+      reset(); 
+      setSelectedLawyer(null);
+      setSelected(undefined);
+      setPracticeArea("")
+
+    } catch (err) {
+      console.error(err);
+      toast.error("An unexpected error occurred.");
+    }
+  };
+
+  // ✅ Custom logic before validation (auth + selections)
+  const customSubmit = (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("Please log in to schedule a consultation.");
+      return;
+    }
+
+    if (!selectedLawyer) {
+      toast.error("Please select a lawyer.");
+      return;
+    }
+
+    if (!selected) {
+      toast.error("Please select a preferred date.");
+      return;
+    }
+
+    handleSubmit(onSubmit)(e);
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto mt-12">
-      <h1 className="text-xl font-bold tracking-tight sm:text-6xl mb-12 text-center">Consult a Lawyer</h1>
+      <h1 className="text-xl font-bold tracking-tight sm:text-6xl mb-12 text-center">
+        Consult a Lawyer
+      </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-6">
-        {/* Select Practice Area */}
+      <form onSubmit={customSubmit} className="mb-6">
         <div className="flex justify-between">
           <div>
             <div className="mb-6">
-              <label htmlFor="practice-area" className="block mb-2 font-medium">
-                Select Practice Area:
-              </label>
+              <label className="block mb-2 font-medium">Select Practice Area:</label>
               <select
-                id="practice-area"
                 value={practiceArea}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 rounded w-96"
@@ -77,30 +118,26 @@ export default function ConsultPage() {
                 <option value="corporate">Corporate Law</option>
                 <option value="family">Family Law</option>
               </select>
-              {errors.practiceArea && <span className="text-red-500 text-sm">Please select a practice area</span>}
+              {errors.practiceArea && (
+                <span className="text-red-500 text-sm">Please select a practice area</span>
+              )}
             </div>
 
-            {/* Case Description */}
             <div className="mb-6">
-              <label htmlFor="case-description" className="block mb-2 font-medium">
-                Case Description:
-              </label>
+              <label className="block mb-2 font-medium">Case Description:</label>
               <textarea
-                id="case-description"
-                placeholder="Please provide details about your legal matter..."
+                placeholder="Provide details about your legal matter..."
                 {...register("caseDescription", { required: true })}
                 className="min-h-[120px] w-full p-2 border rounded"
               />
-              {errors.caseDescription && <span className="text-red-500 text-sm">Case description is required</span>}
+              {errors.caseDescription && (
+                <span className="text-red-500 text-sm">Case description is required</span>
+              )}
             </div>
 
-            {/* Consultation Type */}
             <div className="mb-6">
-              <label htmlFor="consultation-type" className="block mb-2 font-medium">
-                Consultation Type:
-              </label>
+              <label className="block mb-2 font-medium">Consultation Type:</label>
               <select
-                id="consultation-type"
                 {...register("consultationType", { required: true })}
                 className="w-full p-2 border rounded"
               >
@@ -108,16 +145,14 @@ export default function ConsultPage() {
                 <option value="virtual">Virtual Consultation</option>
                 <option value="in-person">In-person Consultation</option>
               </select>
-              {errors.consultationType && <span className="text-red-500 text-sm">Please select consultation type</span>}
+              {errors.consultationType && (
+                <span className="text-red-500 text-sm">Select consultation type</span>
+              )}
             </div>
 
-            {/* Preferred Time */}
             <div className="mb-6">
-              <label htmlFor="preferred-time" className="block mb-2 font-medium">
-                Preferred Time:
-              </label>
+              <label className="block mb-2 font-medium">Preferred Time:</label>
               <select
-                id="preferred-time"
                 {...register("preferredTime", { required: true })}
                 className="w-full p-2 border rounded"
               >
@@ -128,32 +163,29 @@ export default function ConsultPage() {
                 <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
                 <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
               </select>
-              {errors.preferredTime && <span className="text-red-500 text-sm">Please select preferred time</span>}
+              {errors.preferredTime && (
+                <span className="text-red-500 text-sm">Select preferred time</span>
+              )}
             </div>
           </div>
 
           <div>
-            {/* Date */}
-            <div>
-              <label htmlFor="date" className="block mb-2 font-medium">
-                Preferred Date:
-              </label>
-              <div className="p-6 mx-auto bg-white rounded-lg border-2 border-gray-300 shadow-lg max-w-md flex justify-center items-center">
-                <DayPicker
-                  mode="single"
-                  selected={selected}
-                  onSelect={setSelected}
-                  footer={
-                    selected ? (
-                      <div className="text-sm font-medium text-gray-700">{`Selected: ${selected.toLocaleDateString()}`}</div>
-                    ) : (
-                      <div className="text-sm font-medium text-gray-500">Pick a day.</div>
-                    )
-                  }
-                  className="rounded-lg border-2 border-blue-500 hover:border-blue-700 focus:ring-2 focus:ring-blue-400 shadow-sm p-3"
-                  disabled={disablePastDates}
-                />
-              </div>
+            <label className="block mb-2 font-medium">Preferred Date:</label>
+            <div className="p-6 bg-white rounded-lg border-2 border-gray-300 shadow-lg max-w-md">
+              <DayPicker
+                mode="single"
+                selected={selected}
+                onSelect={setSelected}
+                footer={
+                  <div className="text-sm font-medium text-gray-700">
+                    {selected
+                      ? `Selected: ${selected.toLocaleDateString()}`
+                      : "Pick a day."}
+                  </div>
+                }
+                className="rounded-lg border-2 border-blue-500 p-3"
+                disabled={disablePastDates}
+              />
             </div>
           </div>
         </div>
@@ -162,36 +194,29 @@ export default function ConsultPage() {
           {hasSelectedArea && recommendedLawyers.length === 0 ? (
             <p>No lawyers found for this area.</p>
           ) : (
-            <>
-              {/* Check if area is selected and display heading */}
-              {hasSelectedArea && (
+            hasSelectedArea && (
+              <>
                 <h1 className="text-xl font-bold tracking-tight sm:text-3xl text-center">
                   Choose a Lawyer
                 </h1>
-              )}
-
-              {/* Flex container for the lawyer cards */}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {recommendedLawyers.map((lawyer) => (
-                  <LawyerCard
-                    key={lawyer.id}
-                    lawyer={lawyer}
-                    onClick={() => setSelectedLawyer(lawyer.id)}
-                    selected={selectedLawyer === lawyer.id}
-                  />
-                ))}
-              </div>
-            </>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {recommendedLawyers.map((lawyer) => (
+                    <LawyerCard
+                      key={lawyer.id}
+                      lawyer={lawyer}
+                      onClick={() => setSelectedLawyer(lawyer.id)}
+                      selected={selectedLawyer === lawyer.id}
+                    />
+                  ))}
+                </div>
+              </>
+            )
           )}
         </div>
 
-        {/* Submit Button */}
         <div className="mt-8 text-center">
-          <button
-            type="submit"
-            className="p-2 bg-black text-white rounded w-full"
-          >
-            Scheduling Consultation
+          <button type="submit" className="p-2 text-white rounded w-full bg-black">
+            Schedule Consultation
           </button>
         </div>
       </form>
