@@ -55,8 +55,8 @@ export default function HomePage() {
             className="text-xl"
             style={{ color, backgroundColor: background }}
           >
-            Access expert legal services instantly. Connect with qualified lawyers
-            and get the legal support you need, when you need it.
+            Fast and affordable AI-powered legal services — because your rights matters the most.
+  
 
           </motion.p>
 
