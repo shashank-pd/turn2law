@@ -6,6 +6,9 @@ import { Toaster } from 'react-hot-toast'; // using react-hot-toast
 export const metadata = {
   title: 'Turn2Law',
   description: 'Instant Legal Help & AI Assistant',
+  icons: {
+    icon: "/favicon.png", // Or /favicon.png if using PNG
+  },
 };
 
 export default function RootLayout({ children }) {
