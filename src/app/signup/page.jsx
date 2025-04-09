@@ -1,109 +1,115 @@
 "use client";
-import Link from "next/link";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "/lib/supabaseClient";
+import { toast } from "react-hot-toast";
 
 export default function SignupPage() {
   const router = useRouter();
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-    username: "",
-  });
+  const [user, setUser] = useState({ email: "", password: "", username: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        router.replace("/"); // Redirect to home if already logged in
+      }
+    };
+    checkUser();
+  }, []);
 
+  const validateEmail = (email) => /^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/i.test(email);
   const validatePassword = (password) => {
-    return password.length >= 6; // Add your custom password rules here
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{7,}$/;
+    return regex.test(password);
   };
+  
+  
 
   const onSignup = async () => {
     const { email, password, username } = user;
 
-    // Basic form validation
     if (!email || !password || !username) {
-      setError("All fields are required.");
+      toast.error("All fields are required.");
       return;
     }
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
+      toast.error("Invalid email.");
       return;
     }
 
     if (!validatePassword(password)) {
-      setError("Password must be at least 6 characters.");
+      toast.error("Password must be more than 6 characters and include at least one lowercase letter, one uppercase letter, and one number.");
       return;
     }
+    
+    
 
     setLoading(true);
-    setError(null);
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { username },
-      },
+      options: { data: { username } },
     });
 
     if (error) {
-      setError(error.message);
-      setLoading(false);
+      toast.error(error.message);
     } else {
-      console.log("Signup success:", data);
-      setUser({ email: "", password: "", username: "" }); // Clear fields after successful signup
+      toast.success("Signup successful! Check your email to confirm.");
       router.push("/login");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Sign Up</h1>
-
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
 
         <div className="mb-4">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+          <label className="block text-sm font-medium">Username</label>
           <input
-            id="username"
             type="text"
             value={user.username}
             onChange={(e) => setUser({ ...user, username: e.target.value })}
-            placeholder="Enter your username"
-            className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2"
+            placeholder="yourname"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium">Email</label>
           <input
-            id="password"
-            type="password"
-            value={user.password}
-            onChange={(e) => setUser({ ...user, password: e.target.value })}
-            placeholder="Enter your password"
-            className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="email"
+            value={user.email}
+            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2"
+            placeholder="you@example.com"
           />
         </div>
 
         <div className="mb-6">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={user.email}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
-            placeholder="Enter your email"
-            className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-sm font-medium">Password</label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={user.password}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2"
+              placeholder="••••••••"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute top-3.5 right-3 text-sm cursor-pointer text-blue-600"
+            >
+              {showPassword? "Hide" : "Show" }
+            </span>
+          </div>
         </div>
 
         <button
@@ -116,9 +122,9 @@ export default function SignupPage() {
 
         <p className="text-sm text-center mt-4">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 hover:underline">
+          <a href="/login" className="text-blue-600 hover:underline">
             Login
-          </Link>
+          </a>
         </p>
       </div>
     </div>
