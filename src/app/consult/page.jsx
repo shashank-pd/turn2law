@@ -216,7 +216,7 @@ export default function ConsultPage() {
 
         {/* Submit Button */}
         <div className="mt-8 text-center">
-          <button type="submit" className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded hover:bg-gray-900">
+          <button type="submit" className="lg:w-full sm:w-auto bg-black text-white px-6 py-3 rounded hover:bg-gray-900">
             Schedule Consultation
           </button>
         </div>
