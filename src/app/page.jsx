@@ -1,12 +1,14 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRouter } from "next/navigation";
 import { useRef } from 'react';
 import { ChevronsDown } from "lucide-react";
 import FeatureCard from "../components/FeatureCard";
 import { features } from "../components/features";
 
 export default function HomePage() {
+  const router = useRouter();
   const ref = useRef(null);
   const { scrollY } = useScroll();
 
@@ -68,10 +70,14 @@ export default function HomePage() {
             style={{ opacity: showButtons }}
             className="flex flex-col sm:flex-row gap-4 sm:gap-7 justify-center mt-48"
           >
-            <button className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:shadow-lg transition">
+            <button
+              onClick={() => router.push("/consult")}
+              className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:shadow-lg transition cursor-pointer">
               Get Legal Consultation
             </button>
-            <button className="bg-white text-black px-6 py-3 rounded-lg shadow-lg hover:shadow-md transition border border-gray-800">
+            <button
+              onClick={() => router.push("/chatbot")}
+              className="bg-white text-black px-6 py-3 rounded-lg shadow-lg hover:shadow-md transition border border-gray-800 cursor-pointer">
               Chat with AI Assistant
             </button>
           </motion.div>
