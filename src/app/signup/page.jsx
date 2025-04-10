@@ -21,6 +21,7 @@ export default function SignupPage() {
     checkUser();
   }, []);
 
+  
   const validateEmail = (email) => /^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/i.test(email);
   const validatePassword = (password) => {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{7,}$/;
