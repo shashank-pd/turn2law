@@ -4,22 +4,25 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "/lib/supabaseClient";
 import useAuth from "../../hooks/useAuth";
+import { toast } from "react-hot-toast"; // ✅ Added toast import
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true); // 👈 New state
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [showPassword, setShowPassword] = useState(false); // ✅ Toggle state
   const { handleLogin } = useAuth();
 
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.replace("/"); // 🔁 redirect if logged in
+        router.replace("/");
+        toast.error("Already Logged In");
       } else {
-        setCheckingSession(false); // ✅ render login form
+        setCheckingSession(false);
       }
     };
 
@@ -29,11 +32,11 @@ export default function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await handleLogin(email, password); // toast is handled in useAuth
+    await handleLogin(email, password);
     setLoading(false);
   };
 
-  if (checkingSession) return null; // ⏳ Wait until session check is done
+  if (checkingSession) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
@@ -67,23 +70,31 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoFocus
                 className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm pr-16"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-[37px] text-sm text-blue-600 hover:underline"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
               <div className="text-right mt-1">
                 <a
                   href="/forgot-password"
