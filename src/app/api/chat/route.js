@@ -15,7 +15,7 @@ const testGroqConnection = async () => {
             },
         });
         const data = await res.json();
-        console.log('Groq API response:', data); // You can log this in the Vercel logs
+        console.log('Groq API response:', data); 
     } catch (err) {
         console.error('Groq API connection error:', err);
     }
