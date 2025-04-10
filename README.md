@@ -152,10 +152,6 @@ Here’s how you can help:
 
 ---
 
-Nice! Here's a polished **Future Enhancements** section you can use directly in your project documentation or readme:
-
----
-
 ## 🔮 Future Enhancements
 
 - 🌐 **Multilingual Support**  
