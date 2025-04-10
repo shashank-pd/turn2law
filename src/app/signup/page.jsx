@@ -15,6 +15,7 @@ export default function SignupPage() {
       const { data } = await supabase.auth.getSession();
       if (data?.session) {
         router.replace("/"); // Redirect to home if already logged in
+        toast.error("Already Logged In. First logout to SignUp");
       }
     };
     checkUser();
