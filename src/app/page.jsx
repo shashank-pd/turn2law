@@ -1,142 +1,226 @@
-'use client';
+"use client";
 
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
-import { ChevronsDown } from "lucide-react";
-import FeatureCard from "../components/FeatureCard";
-import { features } from "../components/features";
+import { useState } from "react";
+import LawyerCard from "../components/LawyerCard";
+import { supabase } from "/lib/supabaseClient";
+import { useForm } from "react-hook-form";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/style.css";
+import useAuth from "../hooks/useAuth";
+import { toast } from "react-hot-toast";
 
+export default function ConsultPage() {
+  const [practiceArea, setPracticeArea] = useState("");
+  const [recommendedLawyers, setRecommendedLawyers] = useState([]);
+  const [selectedLawyer, setSelectedLawyer] = useState(null);
+  const [hasSelectedArea, setHasSelectedArea] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [selected, setSelected] = useState("");
+  const { user } = useAuth();
 
-export default function HomePage() {
-  const ref = useRef(null);
-  const { scrollY } = useScroll();
+  const disablePastDates = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
 
+  const findRecommendedLawyers = async (area) => {
+    if (!area) return setRecommendedLawyers([]);
+    const { data, error } = await supabase
+      .from("lawyers")
+      .select("*")
+      .eq("specialization", area);
+    if (error) return console.error("Supabase error:", error.message);
+    setRecommendedLawyers(data);
+  };
 
-  // Parallax and opacity
-  const y = useTransform(scrollY, [0, 300], [0, -250]);
-  const opacity = useTransform(scrollY, [0, 150], [1, 0]);
-  const background = useTransform(scrollY, [0, 50], ['rgba(0, 0, 0, 0.15)', 'rgba(0, 0, 0, 0)']);
-  const hideArrow = useTransform(scrollY, [0, 150], [1, 0]);
-  const showButtons = useTransform(scrollY, [90, 150], [0, 1]);
-  // Text color transition (white to black)
-  const color = useTransform(scrollY, [0, 100], ['#ffffff', '#000000']);
+  const handleChange = async (e) => {
+    const selectedValue = e.target.value;
+    setPracticeArea(selectedValue);
+    setHasSelectedArea(true);
+    await findRecommendedLawyers(selectedValue);
+  };
 
+  const onSubmit = async (formData) => {
+    try {
+      const { error } = await supabase.from("consultations").insert([
+        {
+          user_id: user.id,
+          lawyer_id: selectedLawyer,
+          consultation_type: formData.consultationType,
+          case_description: formData.caseDescription,
+          preferred_time: formData.preferredTime,
+          date: selected.toISOString(),
+        },
+      ]);
+
+      if (error) {
+        toast.error("Failed to schedule consultation.");
+        console.error(error);
+        return;
+      }
+
+      toast.success("Consultation scheduled successfully!");
+      reset(); 
+      setSelectedLawyer(null);
+      setSelected(undefined);
+      setPracticeArea("");
+
+    } catch (err) {
+      console.error(err);
+      toast.error("An unexpected error occurred.");
+    }
+  };
+
+  const customSubmit = (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("Please log in to schedule a consultation.");
+      return;
+    }
+
+    if (!selectedLawyer) {
+      toast.error("Please select a lawyer.");
+      return;
+    }
+
+    if (!selected) {
+      toast.error("Please select a preferred date.");
+      return;
+    }
+
+    handleSubmit(onSubmit)(e);
+  };
 
   return (
-    <div ref={ref} className="relative overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative h-screen overflow-hidden">
-        {/* Background Image */}
-        <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            y,
-            opacity,
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')",
-          }}
-        />
+    <div className="px-4 py-8 sm:px-6 lg:px-12 max-w-6xl mx-auto">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-10">
+        Consult a Lawyer
+      </h1>
 
-        {/* Foreground Text */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full">
-          <motion.h1
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 150, opacity: 1 }}
-            transition={{ duration: 1 }}
-            style={{ color, backgroundColor: background }}
-            className="text-4xl font-bold tracking-tight sm:text-6xl mb-6"
-          >
-            Legal Solutions Made Simple
-          </motion.h1>
+      <form onSubmit={customSubmit} className="space-y-6">
+        {/* Responsive Flexbox for Form + Calendar */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left side form */}
+          <div className="flex-1 space-y-6">
+            <div>
+              <label className="block mb-2 font-medium">Select Practice Area:</label>
+              <select
+                value={practiceArea}
+                onChange={handleChange}
+                className="border border-gray-300 p-2 rounded w-full"
+              >
+                <option value="">-- Choose an area --</option>
+                <option value="property">Property Law</option>
+                <option value="immigration">Immigration Law</option>
+                <option value="criminal">Criminal Law</option>
+                <option value="corporate">Corporate Law</option>
+                <option value="family">Family Law</option>
+              </select>
+              {errors.practiceArea && (
+                <span className="text-red-500 text-sm">Please select a practice area</span>
+              )}
+            </div>
 
-          <motion.p
-            initial={{ y: 0, opacity: 0 }}
-            animate={{ y: 150, opacity: 1 }}
-            className="text-xl"
-            style={{ color, backgroundColor: background }}
-          >
-            Fast and affordable AI-powered legal services — because your rights matters the most.
+            <div>
+              <label className="block mb-2 font-medium">Case Description:</label>
+              <textarea
+                placeholder="Provide details about your legal matter..."
+                {...register("caseDescription", { required: true })}
+                className="min-h-[120px] w-full p-2 border rounded"
+              />
+              {errors.caseDescription && (
+                <span className="text-red-500 text-sm">Case description is required</span>
+              )}
+            </div>
 
+            <div>
+              <label className="block mb-2 font-medium">Consultation Type:</label>
+              <select
+                {...register("consultationType", { required: true })}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">-- Choose consultation type --</option>
+                <option value="virtual">Virtual Consultation</option>
+                <option value="in-person">In-person Consultation</option>
+              </select>
+              {errors.consultationType && (
+                <span className="text-red-500 text-sm">Select consultation type</span>
+              )}
+            </div>
 
-          </motion.p>
-
-          <motion.div
-            initial={{ y: 0 }}
-            animate={{ y: 20 }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "reverse",
-              duration: 1,
-            }}
-            style={{ opacity: hideArrow }}
-            className="absolute bottom-30 left-1/2 transform -translate-x-1/2 z-20"
-          >
-            <ChevronsDown className="h-10 w-10 text-white opacity-80" />
-          </motion.div>
-
-
-          <motion.div
-
-            style={{ opacity: showButtons }}
-            className="flex gap-7 justify-center mt-56 mb-0"
-          >
-            <button className="bg-indigo-700 text-white px-6 py-2 rounded-lg hover:shadow-[-25px_10px_50px_rgba(0,0,0,0.5)] transition cursor-pointer">
-              Get Legal Consultation
-            </button>
-            <button className="bg-white text-black px-6 py-2 rounded-lg shadow-[0_10px_50px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition cursor-pointer">
-              Chat with AI Assistant
-            </button>
-          </motion.div>
-        </div>
-      </section >
-
-      <section className="px-4 py-8">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-10 text-center">Features</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-          {features.map((feature, index) => (
-            <FeatureCard key={index} {...feature} />
-          ))}
-        </div>
-      </section>
-
-      {/* About Us Tag */}
-      <section className="px-4 sm:px-8 py-16 bg-white">
-        <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-center mb-12">
-          What's <span className="text-yellow-400">Turn2Law?</span>
-        </h1>
-
-        <div className="flex flex-col sm:flex-row justify-between gap-8">
-          {/* Left: About Turn2Law */}
-          <div className="flex-1 bg-gray-100 p-8 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border-gray-200 border">
-            <p className="text-gray-600 text-lg leading-relaxed ">
-              <span className="font-semibold text-gray-800">Turn2Law</span> is a next-generation legal platform designed to simplify
-              access to legal services for everyone. Whether you're facing an emergency, sorting critical documents, or seeking
-              legal advice, Turn2Law connects you to trusted professionals instantly. Through our innovative approach to document
-              handling, lawyer matching, and a comprehensive resource library, we bridge the gap between legal expertise and
-              accessibility—making legal services more <span className="text-yellow-500 font-medium">affordable, efficient, and effective</span> for all.
-            </p>
+            <div>
+              <label className="block mb-2 font-medium">Preferred Time:</label>
+              <select
+                {...register("preferredTime", { required: true })}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">-- Select time --</option>
+                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                <option value="03:00 PM - 04:00 PM">03:00 PM - 04:00 PM</option>
+                <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
+              </select>
+              {errors.preferredTime && (
+                <span className="text-red-500 text-sm">Select preferred time</span>
+              )}
+            </div>
           </div>
 
-          {/* Right: Key Statistics */}
-          <div className="flex-1 bg-gray-100 p-8 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border-gray-200 border">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {[
-                { title: "10,000+", subtitle: "Consultations Done" },
-                { title: "95%", subtitle: "Client Satisfaction" },
-                { title: "24/7", subtitle: "Legal Support" },
-                { title: "20+ Cities", subtitle: "Across India" },
-              ].map((stat, index) => (
-                <div key={index} className="text-center hover:scale-105 transition-transform duration-300">
-                  <h3 className="text-4xl font-extrabold text-yellow-500">{stat.title}</h3>
-                  <p className="text-md text-gray-500 mt-1">{stat.subtitle}</p>
-                </div>
-              ))}
+          {/* Calendar (Right) */}
+          <div className="w-full lg:w-[360px]">
+            <label className="block mb-2 font-medium">Preferred Date:</label>
+            <div className="p-4 bg-white rounded-lg border border-gray-300 shadow-md">
+              <DayPicker
+                mode="single"
+                selected={selected}
+                onSelect={setSelected}
+                footer={
+                  <div className="text-sm font-medium text-gray-700">
+                    {selected
+                      ? `Selected: ${selected.toLocaleDateString()}`
+                      : "Pick a day."}
+                  </div>
+                }
+                className="rounded-lg"
+                disabled={disablePastDates}
+              />
             </div>
           </div>
         </div>
-      </section>
 
-    </div >
+        {/* Lawyer Recommendations */}
+        <div className="mt-10">
+          {hasSelectedArea && recommendedLawyers.length === 0 ? (
+            <p className="text-center text-gray-600">No lawyers found for this area.</p>
+          ) : (
+            hasSelectedArea && (
+              <>
+                <h2 className="text-2xl font-bold text-center mb-6">Choose a Lawyer</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {recommendedLawyers.map((lawyer) => (
+                    <LawyerCard
+                      key={lawyer.id}
+                      lawyer={lawyer}
+                      onClick={() => setSelectedLawyer(lawyer.id)}
+                      selected={selectedLawyer === lawyer.id}
+                    />
+                  ))}
+                </div>
+              </>
+            )
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <div className="mt-8 text-center">
+          <button type="submit" className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded hover:bg-gray-900">
+            Schedule Consultation
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
