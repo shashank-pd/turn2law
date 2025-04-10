@@ -41,7 +41,6 @@ export default function ConsultPage() {
     await findRecommendedLawyers(selectedValue);
   };
 
-  // ✅ Final submission logic — runs after all validation is passed
   const onSubmit = async (formData) => {
     try {
       const { error } = await supabase.from("consultations").insert([
@@ -65,7 +64,7 @@ export default function ConsultPage() {
       reset(); 
       setSelectedLawyer(null);
       setSelected(undefined);
-      setPracticeArea("")
+      setPracticeArea("");
 
     } catch (err) {
       console.error(err);
@@ -73,7 +72,6 @@ export default function ConsultPage() {
     }
   };
 
-  // ✅ Custom logic before validation (auth + selections)
   const customSubmit = (e) => {
     e.preventDefault();
 
@@ -96,20 +94,22 @@ export default function ConsultPage() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto mt-12">
-      <h1 className="text-xl font-bold tracking-tight sm:text-6xl mb-12 text-center">
+    <div className="px-4 py-8 sm:px-6 lg:px-12 max-w-6xl mx-auto">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-10">
         Consult a Lawyer
       </h1>
 
-      <form onSubmit={customSubmit} className="mb-6">
-        <div className="flex justify-between">
-          <div>
-            <div className="mb-6">
+      <form onSubmit={customSubmit} className="space-y-6">
+        {/* Responsive Flexbox for Form + Calendar */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left side form */}
+          <div className="flex-1 space-y-6">
+            <div>
               <label className="block mb-2 font-medium">Select Practice Area:</label>
               <select
                 value={practiceArea}
                 onChange={handleChange}
-                className="border border-gray-300 p-2 rounded w-96"
+                className="border border-gray-300 p-2 rounded w-full"
               >
                 <option value="">-- Choose an area --</option>
                 <option value="property">Property Law</option>
@@ -123,7 +123,7 @@ export default function ConsultPage() {
               )}
             </div>
 
-            <div className="mb-6">
+            <div>
               <label className="block mb-2 font-medium">Case Description:</label>
               <textarea
                 placeholder="Provide details about your legal matter..."
@@ -135,7 +135,7 @@ export default function ConsultPage() {
               )}
             </div>
 
-            <div className="mb-6">
+            <div>
               <label className="block mb-2 font-medium">Consultation Type:</label>
               <select
                 {...register("consultationType", { required: true })}
@@ -150,7 +150,7 @@ export default function ConsultPage() {
               )}
             </div>
 
-            <div className="mb-6">
+            <div>
               <label className="block mb-2 font-medium">Preferred Time:</label>
               <select
                 {...register("preferredTime", { required: true })}
@@ -169,9 +169,10 @@ export default function ConsultPage() {
             </div>
           </div>
 
-          <div>
+          {/* Calendar (Right) */}
+          <div className="w-full lg:w-[360px]">
             <label className="block mb-2 font-medium">Preferred Date:</label>
-            <div className="p-6 bg-white rounded-lg border-2 border-gray-300 shadow-lg max-w-md">
+            <div className="p-4 bg-white rounded-lg border border-gray-300 shadow-md">
               <DayPicker
                 mode="single"
                 selected={selected}
@@ -183,23 +184,22 @@ export default function ConsultPage() {
                       : "Pick a day."}
                   </div>
                 }
-                className="rounded-lg border-2 border-blue-500 p-3"
+                className="rounded-lg"
                 disabled={disablePastDates}
               />
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-6 mt-8">
+        {/* Lawyer Recommendations */}
+        <div className="mt-10">
           {hasSelectedArea && recommendedLawyers.length === 0 ? (
-            <p>No lawyers found for this area.</p>
+            <p className="text-center text-gray-600">No lawyers found for this area.</p>
           ) : (
             hasSelectedArea && (
               <>
-                <h1 className="text-xl font-bold tracking-tight sm:text-3xl text-center">
-                  Choose a Lawyer
-                </h1>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <h2 className="text-2xl font-bold text-center mb-6">Choose a Lawyer</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {recommendedLawyers.map((lawyer) => (
                     <LawyerCard
                       key={lawyer.id}
@@ -214,8 +214,9 @@ export default function ConsultPage() {
           )}
         </div>
 
+        {/* Submit Button */}
         <div className="mt-8 text-center">
-          <button type="submit" className="p-2 text-white rounded w-full bg-black">
+          <button type="submit" className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded hover:bg-gray-900">
             Schedule Consultation
           </button>
         </div>
