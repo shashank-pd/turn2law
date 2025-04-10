@@ -18,8 +18,7 @@
 - **Virtual Consultations**
 - **Multilingual Assistance**
 
-With a clean **UI/UX**, responsive design, and smooth animations, **Turn2Law** aims to bring accessible legal help to everyone.
-
+With a clean UI/UX, fully responsive design, and smooth animations, **Turn2Law** ensures a seamless experience across all devices, bringing accessible legal help to everyone.
 ---
 
 ## ✨ Features
