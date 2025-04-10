@@ -15,31 +15,44 @@ export default function ResetPasswordPage() {
   const refresh_token = searchParams.get("refresh_token");
 
   useEffect(() => {
-    if (access_token && refresh_token) {
+    if (access_token) {
       const setSession = async () => {
         const { error } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         });
 
-        if (error) toast.error("Session error: " + error.message);
+        if (error) {
+          toast.error("Session error: " + error.message);
+        } else {
+          toast.success("Session established. You can now reset your password.");
+        }
       };
 
       setSession();
+    } else {
+      toast.error("Invalid or missing access token.");
+      router.push("/"); // Redirect to home if token is missing
     }
-  }, [access_token, refresh_token]);
+  }, [access_token, refresh_token, router]);
 
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!password || password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Password reset successful!");
-      router.push("/login"); // or homepage
+      toast.success("Password reset successful! Please log in with your new password.");
+      router.push("/login");
     }
 
     setLoading(false);
