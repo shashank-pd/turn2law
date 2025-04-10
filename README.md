@@ -175,4 +175,3 @@ Here’s how you can help:
 ## 📄 License
 
 This project is licensed under the **MIT License**.
-```
