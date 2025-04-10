@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { supabase } from "/lib/supabaseClient"; // adjust path if needed
+import { supabase } from "/lib/supabaseClient"; // adjust if your path is different
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -10,9 +10,17 @@ export default function ForgotPassword() {
 
   const handleReset = async (e) => {
     e.preventDefault();
+
+    // Basic email format check
+    if (!email || !email.includes("@")) {
+      toast.error("Please enter a valid email.");
+      return;
+    }
+
     setLoading(true);
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://turntwohost.vercel.app/reset-password", // change this to your frontend reset page
+      redirectTo: "https://turntwohost.vercel.app/reset-password", // ✅ make sure this is HTTPS
     });
 
     if (error) {
@@ -33,9 +41,13 @@ export default function ForgotPassword() {
         <p className="text-center text-gray-500 mb-6">
           Enter your email to receive a reset link.
         </p>
+
         <form onSubmit={handleReset} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email
             </label>
             <input
@@ -45,9 +57,10 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -60,6 +73,7 @@ export default function ForgotPassword() {
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
+
         <p className="mt-6 text-center text-sm text-gray-600">
           <a href="/login" className="text-blue-600 hover:underline">
             Back to Login
