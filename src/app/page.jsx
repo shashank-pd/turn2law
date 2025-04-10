@@ -71,7 +71,7 @@ export default function HomePage() {
             <button className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:shadow-lg transition">
               Get Legal Consultation
             </button>
-            <button className="bg-white text-black px-6 py-3 rounded-lg shadow-lg hover:shadow-md transition">
+            <button className="bg-white text-black px-6 py-3 rounded-lg shadow-lg hover:shadow-md transition border border-gray-800">
               Chat with AI Assistant
             </button>
           </motion.div>
@@ -97,8 +97,8 @@ export default function HomePage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* About Text */}
           <div className="flex-1 bg-gray-100 p-6 sm:p-8 rounded-2xl shadow-md hover:shadow-xl transition">
-            <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-              <span className="font-semibold text-gray-800">Turn2Law</span> is a next-generation legal platform designed to simplify
+            <p className="text-gray-600 text-base sm:text-lg leading-relaxed text-justify">
+              <span className="font-semibold text-gray-800 ">Turn2Law</span> is a next-generation legal platform designed to simplify
               access to legal services for everyone. Whether you're facing an emergency, sorting critical documents, or seeking
               legal advice, Turn2Law connects you to trusted professionals instantly. Through our innovative approach to document
               handling, lawyer matching, and a comprehensive resource library, we bridge the gap between legal expertise and
