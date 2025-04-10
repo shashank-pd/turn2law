@@ -1,39 +1,34 @@
 'use client';
 
-import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { supabase } from "/lib/supabaseClient";
 import { toast } from "react-hot-toast";
 
-export default function ResetPasswordForm() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const access_token = searchParams.get("access_token");
-  const refresh_token = searchParams.get("refresh_token");
-
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Step 1: Set the session from the token in URL
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const access_token = searchParams.get("access_token");
+  const refresh_token = searchParams.get("refresh_token");
+
   useEffect(() => {
-    const setSession = async () => {
-      if (access_token && refresh_token) {
+    if (access_token && refresh_token) {
+      const setSession = async () => {
         const { error } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         });
 
-        if (error) {
-          toast.error("Session error: " + error.message);
-        }
-      }
-    };
+        if (error) toast.error("Session error: " + error.message);
+      };
 
-    setSession();
+      setSession();
+    }
   }, [access_token, refresh_token]);
 
-  // Step 2: Handle password update
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,8 +38,8 @@ export default function ResetPasswordForm() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Password updated successfully!");
-      router.push("/"); // Or redirect to dashboard if needed
+      toast.success("Password reset successful!");
+      router.push("/login"); // or homepage
     }
 
     setLoading(false);
