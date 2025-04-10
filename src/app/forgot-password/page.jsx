@@ -12,7 +12,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:3000/reset-password", // change this to your frontend reset page
+      redirectTo: "http://turntwohost.vercel.app/reset-password", // change this to your frontend reset page
     });
 
     if (error) {
