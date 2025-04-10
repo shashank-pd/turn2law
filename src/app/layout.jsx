@@ -2,6 +2,7 @@ import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import { Toaster } from 'react-hot-toast'; // using react-hot-toast
+import { Analytics } from "@vercel/analytics/react"
 
 export const metadata = {
   title: 'Turn2Law',
