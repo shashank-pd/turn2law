@@ -94,7 +94,7 @@ export default function ConsultPage() {
   };
 
   return (
-    <div className="px-4 py-8 sm:px-6 lg:px-12 max-w-6xl mx-auto">
+    <div className="px-4 py-8 sm:px-6 lg:px-12 max-w-6xl mx-auto mt-13">
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-10">
         Consult a Lawyer
       </h1>
