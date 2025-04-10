@@ -7,18 +7,18 @@
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Made with love](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red)
 
-
 **Turn2Law** is a modern full-stack legal services platform built with **Next.js**, offering seamless access to:
 
-- **Legal Consultation**
-- **Intelligent Lawyer Matchmaking**
-- **Secure and Confidential Handling of Data**
-- **24/7 AI-Powered Legal Support**
-- **Affordable Subscription Plans**
-- **Virtual Consultations**
-- **Multilingual Assistance**
+> - **Legal Consultation**  
+> - **Intelligent Lawyer Matchmaking**  
+> - **Secure and Confidential Handling of Data**  
+> - **24/7 AI-Powered Legal Support**  
+> - **Affordable Subscription Plans**  
+> - **Virtual Consultations**  
+> - **Multilingual Assistance**
 
-With a clean UI/UX, fully responsive design, and smooth animations, **Turn2Law** ensures a seamless experience across all devices, bringing accessible legal help to everyone.
+With a clean **UI/UX**, **fully responsive design**, and smooth animations, **Turn2Law** delivers a seamless experience across all devices—bringing fast, reliable, and accessible legal support to everyone.
+
 ---
 
 ## ✨ Features
